@@ -1,0 +1,66 @@
+from datetime import datetime
+
+class Hisob:
+    def __init__(self, balans):
+        self.balans = balans
+
+    def foiz_hisoblash(self):
+        return 0
+
+    def pul_chiqarish(self, summ):
+        if summ <= self.balans:
+            self.balans -= summ
+            return f"{summ} yechildi. Yangi balans: {self.balans}"
+        else:
+            return "Mablag' yetarli emas."
+
+
+class OmonatHisobi(Hisob):
+    def __init__(self, balans, minimal_qoldiq=10000):
+        super().__init__(balans)
+        self.minimal_qoldiq = minimal_qoldiq
+
+    def foiz_hisoblash(self):
+        return self.balans * 0.05  # 5%
+
+    def pul_chiqarish(self, summ):
+        if self.balans - summ < self.minimal_qoldiq:
+            return "Xatolik: minimal qoldiq talab qilinadi!"
+        return super().pul_chiqarish(summ)
+
+
+class KreditHisobi(Hisob):
+    def foiz_hisoblash(self):
+        return self.balans * 0.15  # 15% qarz foizi
+
+    def pul_chiqarish(self, summ):
+        foiz = summ * 0.02  # 2% komissiya
+        jami = summ + foiz
+        if jami > self.balans:
+            return "Balans yetarli emas (komissiya bilan)."
+        self.balans -= jami
+        return f"{summ} + {foiz} foiz komissiya yechildi. Yangi balans: {self.balans}"
+
+
+class InvestitsiyaHisobi(Hisob):
+    def foiz_hisoblash(self):
+        return self.balans * 0.10  # 10% daromad
+
+    def pul_chiqarish(self, summ):
+        bugun = datetime.today().weekday()  # 0=Mon ... 6=Sun
+        if bugun >= 5:
+            return "Faqat ish kunlari pul yechiladi!"
+        return super().pul_chiqarish(summ)
+
+
+o = OmonatHisobi(50000)
+print(o.pul_chiqarish(45000))
+print(o.foiz_hisoblash())
+
+k = KreditHisobi(100000)
+print(k.pul_chiqarish(20000))
+print(k.foiz_hisoblash())
+
+i = InvestitsiyaHisobi(80000)
+print(i.pul_chiqarish(10000))
+print(i.foiz_hisoblash())
